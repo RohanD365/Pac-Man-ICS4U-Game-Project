@@ -7,23 +7,29 @@ package game;
 
 import java.awt.Dimension;
 
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 import javax.swing.JPanel;
 import java.awt.Font;
 import javax.swing.ImageIcon;
 
 import javax.swing.Timer;
 import java.awt.Image;
+import java.applet.*;
 
 public class Game extends JPanel implements ActionListener{
     
-    Dimension s;
+    Dimension d;
     Font script = new Font("Times new Roman", Font.BOLD, 14);
     boolean running = false;
     boolean done = false;
     
-    int DOT_AREA = 23;
+    int DOT_AREA = 24;
     int N_DOTS = 15;
     int Screen = DOT_AREA * N_DOTS;
     
@@ -47,10 +53,10 @@ public class Game extends JPanel implements ActionListener{
     int bigSpeed = 6;
     int nowSpeed = 3;
     
-    short [] scrninfo;
-    Timer t;
+    short [] screeninfo; // Screen information
+    Timer clock;
     
-    private final short screeninformation[] = {   // Used to create the background screen
+    private final short gameboard[] = {   // Used to create the background screen
         
         19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
         17, 16, 16, 16, 16, 24, 16, 16, 16, 16, 16, 16, 16, 16, 20,
@@ -73,13 +79,13 @@ public class Game extends JPanel implements ActionListener{
     public Game(){
         ImageFill(); // Will load the images
         Variableload(); // Initializes the variables
-        addKeyListener(new TAdapter());
+        addKeyListener(new TAdapter());  // For Keyboard commands
         inital(true);
         beginGame();
         
     }
     
-    private void ImageFill() {
+    private void ImageFill() {  // All the images needed for the game 
         down = new ImageIcon(this.getClass().getResource("/images/down.gif")).getImage();
         up = new ImageIcon(this.getClass().getResource("/images/up.gif")).getImage();
         left = new ImageIcon(this.getClass().getResource("/images/left.gif")).getImage();
@@ -87,6 +93,85 @@ public class Game extends JPanel implements ActionListener{
         ghost = new ImageIcon(this.getClass().getResource("/images/ghost.gif")).getImage();
         heart = new ImageIcon(this.getClass().getResource("/images/heart.png")).getImage();
     }
+    
+    
+    private void Variableload(){
+        screeninfo = new short [N_DOTS*N_DOTS];  // screen data
+        d = new Dimension(400,400);
+        Xghost = new int [ghosts];
+        ghost_X = new int [ghosts];
+        Yghost = new int [ghosts];
+        ghost_Y = new int [ghosts];
+        
+        xdirection = new int[4];
+        ydirection = new int [4];
+        
+        clock = new Timer (40, this);
+        clock.start();
+        
+    }
+    
+    
+    private void beginGame(){
+        chances = 3;  // Number of lives remaining
+        points = 0;   // Score will begin at zero
+        startLevel();
+        nghosts = 6; // Number of ghosts
+        nowSpeed = 3;   // Speed of ghosts
+    }
+    
+    private void startLevel(){
+        int x;
+        for (x = 0; x < N_DOTS * N_DOTS; x++){
+            screeninfo[x] = gameboard[x]; // Will make sure that the gameboard will fit in the screen size(400 by 400)   
+        }
+        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    class TAdapter extends KeyAdapter{ // Keyboard control
+        public void keypad(KeyEvent e){
+            int input = e.getKeyCode();
+            
+            if (running){ // If the game is running it is controlled by the keypad
+                if (input == KeyEvent.VK_LEFT){
+                    req_dx = -1;
+                    req_dy = 0;  
+                }
+                else if (input == KeyEvent.VK_RIGHT){
+                    req_dx = 1;
+                    req_dy = 0;  
+                }
+                else if (input == KeyEvent.VK_UP){
+                    req_dx = 0;
+                    req_dy = -1;  
+                }
+                else if (input == KeyEvent.VK_DOWN){
+                    req_dx = 0;
+                    req_dy = 1;  
+                }
+                else if (input == KeyEvent.VK_ESCAPE && clock.isRunning()){
+                    running = false;
+                    
+                }
+                
+            } else {
+                if (input == KeyEvent.VK_SPACE){   // The spacebar will begin the game. 
+                    running = true;
+                    beginGame();
+                }
+                
+            }
+            
+        }
+    } 
     
     
     
