@@ -49,7 +49,7 @@ public class Game extends JPanel implements ActionListener{
     
     int req_dx, req_dy;
     
-    int rangeSpeeds[] = {1,2,3,4,6,8};
+    int rangeSpeeds[] = {1, 2, 3, 4, 6, 8};
     int bigSpeed = 6;
     int nowSpeed = 3;
     
@@ -128,7 +128,68 @@ public class Game extends JPanel implements ActionListener{
         
     }
     
+    //private void gameplay(){
+        //Collection of other functions to run the game  
+    //}
     
+    
+    
+    
+    
+    
+    
+    private void continueGame(){
+        int dx = 1;
+        int random;  // Will be used for the random speed for the ghost
+        
+        for (int x = 0; x < nghosts; x++){
+            Yghost[x] = 4*DOT_AREA; 
+            Xghost[x] = 4*DOT_AREA;
+            ghost_Y[x] = 0;
+            ghost_X[x] = dx;
+            dx = -dx;
+            
+            random = (int) (Math.random() * (nowSpeed + 1));  // Will generate a random speed for the ghost.
+
+            if (random > nowSpeed) {
+                random = nowSpeed;
+            }
+
+            ghostRate[x] = rangeSpeeds[random]; // Use of an array to create a random speed.
+        }
+        
+        
+        Xpacman = 7 * DOT_AREA;
+        Ypacman = 11 * DOT_AREA;
+        Hpacman = 0;
+        Vpacman = 0;
+        done = false ; // This means the game is stil running
+            
+        }
+        
+        
+    }
+   
+    public void drawComponent(Graphics g){
+        super.paintComponent(g);
+
+        Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setColor(Color.black);
+        g2d.fillRect(0, 0, d.width, d.height);
+
+        drawMaze(g2d);
+        drawScore(g2d);
+
+        if (inGame) {
+            playGame(g2d);
+        } else {
+            showIntroScreen(g2d);
+        }
+
+        Toolkit.getDefaultToolkit().sync();
+        
+}
     
     
     
