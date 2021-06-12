@@ -47,7 +47,7 @@ public class Game extends JPanel implements ActionListener{
     
     int Xpacman, Ypacman, Hpacman, Vpacman;
     
-    int req_dx, req_dy;
+    int xkey, ykey;
     
     int rangeSpeeds[] = {1, 2, 3, 4, 6, 8};
     int bigSpeed = 6;
@@ -128,9 +128,57 @@ public class Game extends JPanel implements ActionListener{
         
     }
     
-    //private void gameplay(){
-        //Collection of other functions to run the game  
-    //}
+    private void gameplay(Graphics2D g2d){  // 2-D graphics
+        if (done) { 
+            finished();
+        }
+        else {
+            goPacman();
+            paintPacman();
+            ghostmotion();
+            checkPath();
+            
+        }
+        
+        public void goPacman(){
+            int position; // Used to determine the position
+            short scrn;   // This will connect to the screen info function
+            
+            if (Xpacman % DOT_AREA == 0 && Ypacman % DOT_AREA == 0) {// Starting position of the pacman
+            position = Xpacman / DOT_AREA + N_DOTS * (int) (Ypacman / DOT_AREA); // Calculation to determine location of the pacman
+            scrn = screeninfo[position];
+
+            if ((scrn & 16) != 0) {  // 16 is a point on the game board which the pacman can eat
+                screeninfo[position] = (short) (scrn & 15);
+                points++; 
+            }
+            
+            if (xkey != 0 || ykey != 0) { // Pacman keypad controls for the keyboard
+                if (!((xkey == -1 && ykey == 0 && (scrn & 1) != 0) // Checks if the pacman is on the borders then the pacman cannot move in the corresponding direction.
+                        || (xkey == 1 && ykey == 0 && (scrn & 4) != 0)
+                        || (xkey == 0 && ykey == -1 && (scrn & 2) != 0)
+                        || (xkey == 0 && ykey == 1 && (scrn & 8) != 0))) {
+                    Hpacman= xkey;
+                    Vpacman = ykey;
+                }
+            }
+            
+            // Check if the pacman is not moving
+            if ((Hpacman == -1 && Vpacman == 0 && (scrn & 1) != 0)
+                    || (Hpacman == 1 && Vpacman == 0 && (scrn & 4) != 0)
+                    || (Hpacman == 0 && Vpacman == -1 && (scrn & 2) != 0)
+                    || (Hpacman == 0 && Vpacman == 1 && (scrn & 8) != 0)) {
+                Hpacman = 0;
+                Vpacman = 0;
+            }
+            
+            // Speed of the pacman can be adjusted accordingly depending if it is in standstill or moving around
+             Xpacman = Xpacman + speed * Hpacman;
+             Ypacman = Ypacman + speed * Vpacman;
+            
+            
+        }
+        }
     
     
     
@@ -203,20 +251,20 @@ public class Game extends JPanel implements ActionListener{
             
             if (running){ // If the game is running it is controlled by the keypad
                 if (input == KeyEvent.VK_LEFT){
-                    req_dx = -1;
-                    req_dy = 0;  
+                    xkey = -1;
+                    ykey = 0;  
                 }
                 else if (input == KeyEvent.VK_RIGHT){
-                    req_dx = 1;
-                    req_dy = 0;  
+                    xkey = 1;
+                    ykey = 0;  
                 }
                 else if (input == KeyEvent.VK_UP){
-                    req_dx = 0;
-                    req_dy = -1;  
+                    xkey = 0;
+                    ykey = -1;  
                 }
                 else if (input == KeyEvent.VK_DOWN){
-                    req_dx = 0;
-                    req_dy = 1;  
+                    xkey = 0;
+                    ykey = 1;  
                 }
                 else if (input == KeyEvent.VK_ESCAPE && clock.isRunning()){
                     running = false;
