@@ -171,15 +171,142 @@ public class Game extends JPanel implements ActionListener{
                 Hpacman = 0;
                 Vpacman = 0;
             }
+            }
             
             // Speed of the pacman can be adjusted accordingly depending if it is in standstill or moving around
              Xpacman = Xpacman + speed * Hpacman;
              Ypacman = Ypacman + speed * Vpacman;
             
+        }
+        
+        public void paintPacman(Graphics2D g2d){  // To check which key is pressed so that it can use the appropriate gif file for the pacman icon
+            if (xkey == -1) {
+        	g2d.drawImage(left, Xpacman + 1, Ypacman + 1, this); 
+        } else if (xkey == 1) {
+        	g2d.drawImage(right, Xpacman + 1, Ypacman + 1, this);
+        } else if (ykey == -1) {
+        	g2d.drawImage(up, Xpacman + 1, Ypacman + 1, this);
+        } else {
+        	g2d.drawImage(down, Xpacman + 1, Ypacman + 1, this);
+        }
+                
+        }
+        
+        // Set the 
+        public void ghostmotion(Graphics2D g2d) { 
+            int position; // For the position, set the position of the ghost using block size
+            int counter;
+            
+            for (int i = 0; i < nghosts; i++) {
+            if (Xghost[i] % DOT_AREA == 0 && Yghost[i] % DOT_AREA == 0) {  // Ghosts move from one square and decide if they need to change direction
+                position = Xghost[i] / DOT_AREA + N_DOTS * (int) (Yghost[i] / DOT_AREA);
+
+                counter = 0;
+
+                if ((screeninfo[position] & 1) == 0 && ghost_X[i] != 1) { // We use the border information 1,2,4,8 to determine how the ghost moves
+                    xdirection[counter] = -1;
+                    ydirection[counter] = 0;
+                    counter++;
+                }
+
+                if ((screeninfo[position] & 2) == 0 && ghost_Y[i] != 1) {
+                    xdirection[counter] = 0;
+                    ydirection[counter] = -1;
+                    counter++;
+                }
+
+                if ((screeninfo[position] & 4) == 0 && ghost_X[i] != -1) {
+                    xdirection[counter] = 1;
+                    ydirection[counter] = 0;
+                    counter++;
+                }
+
+                if ((screeninfo[position] & 8) == 0 && ghost_Y[i] != -1) {
+                    xdirection[counter] = 0;
+                    ydirection[counter] = 1;
+                    counter++;
+                }
+
+                if (counter == 0) {
+
+                    if ((screeninfo[position] & 15) == 15) {
+                        ghost_X[i] = 0;
+                        ghost_Y[i] = 0;
+                    } else {
+                        ghost_X[i] = -ghost_X[i];  // Determines where the ghost is located on which position on the square
+                        ghost_Y[i] = -ghost_Y[i];
+                    }
+
+                } else {
+
+                    counter = (int) (Math.random() * counter);  // If there is no obstacle on the left and the ghost is not moving to the right then it will move to the left
+
+                    if (counter > 3) {
+                        counter = 3;
+                    }
+
+                    ghost_X[i] = xdirection[counter];
+                    ghost_Y[i] = ydirection[counter];
+                }
+
+            }
+
+            Xghost[i] = Xghost[i] + (ghost_X[i] * ghostRate[i]); // Will make the ghost move at a constant speed
+            Yghost[i] = Yghost[i] + (ghost_Y[i] * ghostRate[i]);
+            paintGhost(g2d, Xghost[i] + 1, Yghost[i] + 1); // Reloads the image of the ghost we want to draw
+
+            if (Xpacman > (Xghost[i] - 12) && Xpacman < (Xghost[i] + 12) && Ypacman > (Yghost[i] - 12) && Ypacman < (Yghost[i] + 12) && running) { // If pacman touches the ghost it looses a life
+                
+                done = true; // One life in the game is gone
+            }
+        }
             
         }
+        
+        public void paintGhost(Graphics2D g2d, int x, int y) {
+    	g2d.drawImage(ghost, x, y, this); // The gif file of the ghost will be outputted
         }
+        
+        public void checkPath () {  // Checks if there are anymore points for the pacman to eat 
+            int c = 0;
+            boolean gameover = true;
+
+            while (c < N_DOTS * N_DOTS && gameover) {
+
+            if ((screeninfo[c]) != 0) {
+                gameover = false;
+            }
+
+            c++;
+        }
+
+        if (gameover) { // If all points are consumed then we move to the next level
+
+            points += 50;
+
+            if (nghosts < ghosts) {
+                nghosts++;
+            }
+
+            if (nowSpeed < bigSpeed) {  // The ghost and speed increase by one
+                nowSpeed++;
+            }
+
+            startLevel();
+        }
+    }
+        
+        private void finished(){ // If the pacman dies by touching a ghost it looses one life
+            chances --; // The game continues until the pac man has no more lives
+            if (chances == 0){
+                running = false;
+            }
+            continueGame(); // Ghost and pac man are put back onto the screen
+            
+        }
+        
     
+        
     
     
     
@@ -217,6 +344,9 @@ public class Game extends JPanel implements ActionListener{
         
         
     }
+
+    
+    
    
     public void drawComponent(Graphics g){
         super.paintComponent(g);
