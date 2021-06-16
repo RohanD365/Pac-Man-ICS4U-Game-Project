@@ -25,32 +25,33 @@ import javax.swing.Timer;
 
 public class Game extends JPanel implements ActionListener {
 
-    Dimension d;
+    Dimension d; // Dimensions for the background of the screen
     private final Font script = new Font("Times new Roman", Font.BOLD, 14);
-    boolean running = false;
-    boolean done = false;
-
-    int DOT_AREA = 24;
-    int N_DOTS = 15;
-    int Screen = N_DOTS * DOT_AREA;
     
-    int ghosts = 12;
-    int speed = 6;
+    boolean running = false; // Checks if the game is running 
+    boolean done = false;   // Checks if the pacman is alive
 
-    int nghosts = 6;
-    int chances, points;
-    int[] xdirection, ydirection;
+    int DOT_AREA = 24; // Size for the white dots
+    int N_DOTS = 15;  // Number of white dots in one row
+    int Screen = N_DOTS * DOT_AREA; // Screen size using the area of the white dots and the number of white dots
     
-    int[] Xghost, Yghost, ghost_X, ghost_Y, ghostRate;
+    int ghosts = 12; // Maximum number of ghosts
+    int speed = 6; // Speed of the pacman
 
-    private Image heart, ghost;
+    int nghosts = 6; // Number of ghosts at the beggining
+    int chances, points; // Number of lives and the total score
+    int[] xdirection, ydirection;  // Used for the position of the ghosts
+    
+    int[] Xghost, Yghost, ghost_X, ghost_Y, ghostRate; // Determines number and position of the ghosts
+
+    private Image heart, ghost;    
     private Image up, down, left, right;
 
-    int Xpacman, Ypacman, Hpacman, Vpacman;
+    int Xpacman, Ypacman, Hpacman, Vpacman; // First two variables store the x and y coordinates. The last two variables are the changes in horizontal and vertical directions.
     
-    int xkey, ykey;
+    int xkey, ykey; // Used for the keyboard arrow keys in the class TAdapter extends KeyAdapter
 
-    private final short gameboard[] = { // Used to create the background screen
+    private final short gameboard[] = { // Used to create the background screen, each number represents a specific point on the gameboard.
     	19, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 22,
         17, 16, 16, 16, 16, 24, 16, 16, 16, 16, 16, 16, 16, 16, 20,
         25, 24, 24, 24, 28, 0, 17, 16, 16, 16, 16, 16, 16, 16, 20,
@@ -68,12 +69,11 @@ public class Game extends JPanel implements ActionListener {
         25, 24, 24, 24, 26, 24, 24, 24, 24, 24, 24, 24, 24, 24, 28
     };
 
-    private final int rangeSpeeds[] = {1, 2, 3, 4, 6, 8};
-    private final int bigSpeed = 6;
-    private int nowSpeed = 3;
+    private final int rangeSpeeds[] = {1, 2, 3, 4, 6, 8}; // available speeds for the ghost
+    private int nowSpeed = 3; // Current speed for the ghost
     
     private short[] screeninfo; // Screen information
-    private Timer clock;
+    private Timer clock;  
 
     public Game() {
 
@@ -81,11 +81,11 @@ public class Game extends JPanel implements ActionListener {
         Variableload(); // Initializes the variables
         addKeyListener(new TAdapter()); // For Keyboard commands
         setFocusable(true);
-        beginGame();
+        beginGame();  // Starts the game
     }
     
     
-    private void ImageFill() {
+    private void ImageFill() {  // All the gif files and images needed for the game. 
         
         down = new ImageIcon(this.getClass().getResource("/images/down.gif")).getImage();
         up = new ImageIcon(this.getClass().getResource("/images/up.gif")).getImage();
@@ -102,7 +102,7 @@ public class Game extends JPanel implements ActionListener {
         screeninfo = new short [N_DOTS * N_DOTS];  // screen data
         d = new Dimension(400, 400);
         
-        Xghost = new int[ghosts];
+        Xghost = new int[ghosts];      // Data for the movement of the ghosts.
         ghost_X = new int[ghosts];
         Yghost = new int[ghosts];
         
@@ -127,15 +127,18 @@ public class Game extends JPanel implements ActionListener {
             goPacman();
             paintPacman(g2d);
             ghostmotion(g2d);
-            checkPath();
+            checkPath(g2d);
         }
     }
 
-    private void showIntroScreen(Graphics2D g2d) {
+    private void showIntroScreen(Graphics2D g2d) {  // Text that will be shown on the introduction screen.
  
     	String start = "Press the SPACE key to start the game!"; // Text with the colour yellow
+        String lives = "You have three lives to win the game!";
         g2d.setColor(Color.yellow);
         g2d.drawString(start, (Screen)/4, 150);
+        g2d.drawString(lives, 90, 220);
+        
     }
 
     private void drawpoints(Graphics2D g) {
@@ -144,39 +147,53 @@ public class Game extends JPanel implements ActionListener {
         String score = "Score: " + points;
         g.drawString(score, Screen / 2 + 96, Screen + 16);
 
-        for (int i = 0; i < chances; i++) { // In a loop we check how many lives are left to display the correct numeber of hearts
+        for (int i = 0; i < chances; i++) { // In a loop we check how many lives are left to display the correct numeber of hearts on the screen.
             g.drawImage(heart, i * 28 + 8, Screen + 1, this);
         }
     }
 
-    public void checkPath() { // Checks if there are anymore points for the pacman to eat
+    public void checkPath(Graphics2D g2d) { // Checks if there are anymore points for the pacman to eat.
 
         int c = 0;
         boolean gameover = true;
 
         while (c < N_DOTS * N_DOTS && gameover) {
 
-            if ((screeninfo[c]) != 0) {
+            if ((screeninfo[c] & 48) != 0) {
                 gameover = false;
             }
+            
 
             c++;
         }
 
-        if (gameover) { // If all points are consumed then we move to the next level
-
-            points += 50;
-
-            if (nghosts < ghosts) {
-                nghosts++;
-            }
-
-            if (nowSpeed < bigSpeed) { // The ghost and speed increase by one
-                nowSpeed++;
-            }
-
-            startLevel();
+        if (gameover) { // If all points are consumed then the congratulations message is outputted. 
+            boolean working = true;
+            
+            if (working){
+            
+            timeDelay(1000);
+            Font myFont = new Font ("Courier New", 1, 13);  // Font for congratulations message.
+            
+            g2d.setFont(myFont);
+            String end = "Congratulations! You have won the game!";
+            g2d.setColor(Color.yellow);
+            g2d.drawString(end, 30, 150);
+            g2d.dispose();
+             
+            timeDelay(2000); 
+            finished();
         }
+        
+        
+        
+    }
+    }
+    
+    public void timeDelay(long t) {
+    try {
+        Thread.sleep(t);   // This method is used to create a delay.
+    } catch (InterruptedException e) {}
     }
 
     private void finished() { // If the pacman dies by touching a ghost it looses one life
@@ -190,18 +207,18 @@ public class Game extends JPanel implements ActionListener {
         continueGame(); // Ghost and pac man are put back onto the screen
     }
 
-    public void ghostmotion(Graphics2D g2d) {
+    public void ghostmotion(Graphics2D g2d) { 
 
         int position;
         int counter;
 
-        for (int i = 0; i < nghosts; i++) {
-            if (Xghost[i] % DOT_AREA == 0 && Yghost[i] % DOT_AREA == 0) { // Ghosts move from one square and decide if they need to change direction
-                position = Xghost[i] / DOT_AREA + N_DOTS * (int) (Yghost[i] / DOT_AREA);
+        for (int i = 0; i < nghosts; i++) { // Ghosts move from one square and decide if they need to change direction
+            if (Xghost[i] % DOT_AREA == 0 && Yghost[i] % DOT_AREA == 0) { // They move only if they finished moving one square.
+                position = Xghost[i] / DOT_AREA + N_DOTS * (int) (Yghost[i] / DOT_AREA); // Determines where the ghost is located.
 
                 counter = 0;
 
-                if ((screeninfo[position] & 1) == 0 && ghost_X[i] != 1) { // We use the border information 1,2,4,8 to determine how the ghost moves
+                if ((screeninfo[position] & 1) == 0 && ghost_X[i] != 1) { // We use the border information 1,2,4,8 to determine how the ghost moves.
                     xdirection[counter] = -1;
                     ydirection[counter] = 0;
                     counter++;
@@ -253,7 +270,7 @@ public class Game extends JPanel implements ActionListener {
             Yghost[i] = Yghost[i] + (ghost_Y[i] * ghostRate[i]); // Reloads the image of the ghost we want to draw
             paintGhost(g2d, Xghost[i] + 1, Yghost[i] + 1);
 
-            if (Xpacman > (Xghost[i] - 12) && Xpacman < (Xghost[i] + 12) && Ypacman > (Yghost[i] - 12) && Ypacman < (Yghost[i] + 12) && running) {
+            if (Xpacman > (Xghost[i] - 12) && Xpacman < (Xghost[i] + 12) && Ypacman > (Yghost[i] - 12) && Ypacman < (Yghost[i] + 12) && running) { // If there is a collision between the ghost and the pacman.
 
                 done = true; // One life in the game is gone
             }
@@ -278,7 +295,7 @@ public class Game extends JPanel implements ActionListener {
                 points++;
             }
 
-            if (xkey != 0 || ykey != 0) { // Pacman keypad controls for the keyboard
+            if (xkey != 0 || ykey != 0) { // The pacman stops if it cannot move further in the current direction.
                 if (!((xkey == -1 && ykey == 0 && (scrn & 1) != 0) // Checks if the pacman is on the borders then the pacman cannot move in the corresponding direction.
                         || (xkey == 1 && ykey == 0 && (scrn & 4) != 0)
                         || (xkey == 0 && ykey == -1 && (scrn & 2) != 0)
@@ -409,13 +426,13 @@ public class Game extends JPanel implements ActionListener {
     }
 
  @Override
-    public void paintComponent(Graphics g) {  // The background for the game is black
+    public void paintComponent(Graphics g) {  
         
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;
 
-        g2d.setColor(Color.black);
+        g2d.setColor(Color.black); // The background for the game is black
         g2d.fillRect(0, 0, d.width, d.height);
 
         drawscreen(g2d); // The gameboard will be drawn on top of the background
@@ -440,8 +457,8 @@ public class Game extends JPanel implements ActionListener {
 
             int input = e.getKeyCode();
 
-            if (running) { // If the game is running it is controlled by the keypad
-                if (input == KeyEvent.VK_LEFT) {
+            if (running) { // The game is running it is controlled by the keypad
+                if (input == KeyEvent.VK_LEFT) {  // For each condition the xkey and ykey values represent the gif file that will be outputted
                     xkey = -1;
                     ykey = 0;
                 } else if (input == KeyEvent.VK_RIGHT) {
@@ -469,9 +486,8 @@ public class Game extends JPanel implements ActionListener {
 	
     @Override
     public void actionPerformed(ActionEvent e) {
-        repaint();
+        repaint(); // performs a request to erase and redraw the components after a small delay of time
     }
     
 		
 	}
-

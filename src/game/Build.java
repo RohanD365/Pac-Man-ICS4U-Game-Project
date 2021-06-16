@@ -15,12 +15,12 @@ public class Build extends JFrame{
 		int width = 380;  // Dimensions for the screen
                 int height = 420;
                 
-                Build pacman = new Build();
+                Build pacman = new Build(); // Object pacman is created to display the main JFrame
 		pacman.setVisible(true);
 		pacman.setTitle("PAC-MAN");
 		pacman.setSize(width,height);
 		
-                pacman.setDefaultCloseOperation(EXIT_ON_CLOSE);
+                pacman.setDefaultCloseOperation(EXIT_ON_CLOSE); // When the X button is clicked the window will close.
 		pacman.setLocationRelativeTo(null);
 		
 	}
