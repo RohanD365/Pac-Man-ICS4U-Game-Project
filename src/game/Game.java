@@ -20,7 +20,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import java.applet.*;
+
 
 
 public class Game extends JPanel implements ActionListener {
@@ -133,7 +133,7 @@ public class Game extends JPanel implements ActionListener {
 
     private void showIntroScreen(Graphics2D g2d) {
  
-    	String start = "Press SPACE key to start the game!"; // Text with the colour yellow
+    	String start = "Press the SPACE key to start the game!"; // Text with the colour yellow
         g2d.setColor(Color.yellow);
         g2d.drawString(start, (Screen)/4, 150);
     }
@@ -408,8 +408,9 @@ public class Game extends JPanel implements ActionListener {
         done = false; // This means the game is still running
     }
 
- 
+ @Override
     public void paintComponent(Graphics g) {  // The background for the game is black
+        
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;
