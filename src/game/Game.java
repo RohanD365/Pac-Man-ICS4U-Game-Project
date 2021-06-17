@@ -135,9 +135,11 @@ public class Game extends JPanel implements ActionListener {
  
     	String start = "Press the SPACE key to start the game!"; // Text with the colour yellow
         String lives = "You have three lives to win the game!";
+        String watch = "Watch out for ghosts, they have a random speed!";
         g2d.setColor(Color.yellow);
         g2d.drawString(start, (Screen)/4, 150);
         g2d.drawString(lives, 90, 220);
+        g2d.drawString(watch, 47, 265);
         
     }
 
